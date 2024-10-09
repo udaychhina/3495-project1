@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS analytics;
+
+USE analytics;
+
+CREATE TABLE IF NOT EXISTS grades (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_name VARCHAR(255),
+  grade INT
+);
