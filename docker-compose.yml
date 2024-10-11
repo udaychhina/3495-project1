@@ -4,7 +4,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: analytics
-      MYSQL_ALLOW_EMPTY_PASSWORD: true
     volumes:
       - mysql_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql # Load init.sql

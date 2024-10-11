@@ -31,8 +31,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/submit', (req, res) => {
-    const studentID = req.body.student_name;
     const grade = req.body.grade;
+    const student_name = req.body.student_name;
     // const query = `INSERT INTO grades (studentID, grade) VALUES (${studentID}, ${grade})
     // ON DUPLICATE KEY UPDATE grade=${grade}`;
     // connection.query(query, (err, result) => {
@@ -41,15 +41,14 @@ app.post('/submit', (req, res) => {
     // });
     
     // Ensure the data is properly extracted and validated
-    if (!studentID || !grade) {
+    if (!student_name || !grade) {
         return res.status(400).send('Student name and grade are required');
     }
-    const query = 'INSERT INTO grades (studentID, grade) VALUES (?, ?) ON DUPLICATE KEY UPDATE grade = ?';
-    connection.query(query, [studentID, grade, grade], (err, result) => {
+    const query = `INSERT INTO grades (student_name, grade) VALUES (?, ?)`;
+    connection.query(query, [student_name, grade], (err, result) => {
         if (err) throw err;
-        res.send('Data submitted');
-});
-
+        res.send('Data submitted successfully');
+    });
 });
 
 app.listen(3000, () => {
