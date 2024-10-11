@@ -11,7 +11,7 @@ const mongoUrl = 'mongodb://mongodb:27017';
 let db;
 
 // Connect to MongoDB
-MongoClient.connect(mongoUrl, (err, client) => {
+MongoClient.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology:true }, (err, client) => {
     if (err) throw err;
     db = client.db('analytics_db');
     console.log('Connected to MongoDB');
@@ -28,7 +28,7 @@ app.post('/show_results', (req, res) => {
 
     // Authentication request
     const options = {
-        hostname: 'authentication_service',
+        hostname: 'authentication',
         port: 5000,
         path: '/auth',
         method: 'POST',
