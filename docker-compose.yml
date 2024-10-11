@@ -25,8 +25,15 @@ services:
       - backend
     ports:
       - "27017:27017"
+  
+  authentication:
+    build: ./authentication
+    networks:
+      - backend
+    ports:
+      - "5000:5000"
 
-  enter_data:
+  collection:
     build: ./collection
     depends_on:
       - mysql
@@ -35,8 +42,8 @@ services:
       - backend
     ports:
       - "3000:3000"
-
-  show_results:
+  
+  results:
     build: ./results
     depends_on:
       - mongodb
@@ -46,14 +53,7 @@ services:
     ports:
       - "4000:4000"
 
-  authentication_service:
-    build: ./authentication
-    networks:
-      - backend
-    ports:
-      - "5000:5000"
-
-  analytics_service:
+  analysis:
     build: ./analysis
     depends_on:
       - mysql

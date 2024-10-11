@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Results</title>
+</head>
+
+<body>
+    <h1>Student Grade Analytics</h1>
+
+    <form id="auth-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Show Results</button>
+    </form>
+
+    <div id="results" style="display: none;">
+        <h2>Analytics</h2>
+        <p>Max Grade: <span id="max"></span></p>
+        <p>Min Grade: <span id="min"></span></p>
+        <p>Average Grade: <span id="avg"></span></p>
+    </div>
+
+    <script>
+        document.getElementById('auth-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/show_results', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('max').textContent = data.max;
+                document.getElementById('min').textContent = data.min;
+                document.getElementById('avg').textContent = data.avg;
+                document.getElementById('results').style.display = 'block';
+            } else {
+                alert('Invalid credentials or error fetching results');
+            }
+        });
+    </script>
+</body>
+
+</html>
