@@ -1,5 +1,5 @@
 # Dockerfile for Enter Data Service
-FROM node:14
+FROM node:lts
 
 # Create app directory
 WORKDIR /usr/src/app
