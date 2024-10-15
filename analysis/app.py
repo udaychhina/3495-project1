@@ -18,9 +18,20 @@ mongo_db = mongo_client['analytics_db']
 
 @app.route('/calculate', methods=['GET'])
 def calculate():
-    cursor = mysql_conn.cursor(dictionary=True)
-    cursor.execute("SELECT grade FROM grades")
-    grades = [row['grade'] for row in cursor.fetchall()]
+    if mysql_conn.is_connected():
+        print("MySQL connection is alive")
+    else:
+        print("MySQL connection is closed, reconnecting...")
+        mysql_conn.reconnect()
+
+    try:
+        cursor = mysql_conn.cursor(dictionary=True)
+        cursor.execute("SELECT grade FROM grades;")
+        grades = [row['grade'] for row in cursor.fetchall()]
+        print(grades)
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return {"error": str(err)}
 
     if grades:
         max_grade = max(grades)
@@ -32,10 +43,9 @@ def calculate():
             'min': min_grade,
             'avg': avg_grade
         }
-
         # Write result to MongoDB
         mongo_db.analytics.update_one({}, {"$set": result}, upsert=True)
-
+        print(result)
         return result
     else:
         return {"error": "No grades found"}

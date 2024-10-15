@@ -2,6 +2,7 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const http = require('http');
 const path = require('path');
+const axios = require('axios');
 
 const app = express();
 app.use(express.json());
@@ -22,60 +23,39 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+
+authenicate = async (username, password) => {
+    const authResponse = await axios.post('http://authentication:5000/auth', 
+        { username, password });
+    return authResponse.data.authenticated;
+}
+
+
 // Route to fetch analytics results (max, min, average) after authentication
-app.post('/show_results', (req, res) => {
+app.post('/show_results', async (req, res) => {
     const { username, password } = req.body;
 
-    // Authentication request
-    const options = {
-        hostname: 'authentication',
-        port: 5000,
-        path: '/auth',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    };
-
-    const authReq = http.request(options, authRes => {
-        let data = '';
-
-        authRes.on('data', chunk => {
-            data += chunk;
-        });
-
-        authRes.on('end', async () => {
-            const authResponse = JSON.parse(data);
-            if (authResponse.authenticated) {
-                // Fetch analytics from MongoDB
-                try {
-                    const results = await db.collection('analytics').findOne({});
-                    if (results) {
-                        res.json({
-                            max: results.max,
-                            min: results.min,
-                            avg: results.avg
-                        });
-                    } else {
-                        res.status(404).send('No analytics data found');
-                    }
-                } catch (error) {
-                    res.status(500).send('Error fetching analytics data');
-                }
+    auth = await authenicate(username, password);
+    
+    if (auth) {
+        try {
+            const results = await db.collection('analytics').findOne({});
+            if (results) {
+                return res.json({
+                    max: results.max,
+                    min: results.min,
+                    avg: results.avg
+                });
             } else {
-                res.status(401).send('Invalid credentials');
+                return res.status(404).send('No analytics data found');
             }
-        });
-    });
-
-    authReq.on('error', error => {
-        console.error(`Error: ${error.message}`);
-        res.status(500).send('Error authenticating user');
-    });
-
-    const postData = JSON.stringify({ username, password });
-    authReq.write(postData);
-    authReq.end();
+        } catch (error) {
+            return res.status(500).send('Error fetching analytics data');
+        }
+    }
+    else {
+        return res.status(401).send('Invalid credentials');
+    }
 });
 
 app.listen(4000, () => {
